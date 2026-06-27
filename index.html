@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0a1e3f" />
+<title>Los Cocheros Mundialistas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --azul-noche:#0a1e3f; --azul-2:#123a6b; --azul-3:#1b4f8a;
+  --cyan:#34c7e3; --cyan-soft:#bdeef7;
+  --lima:#c6f23c; --oro:#f4c53b;
+  --tinta:#0c1b33; --gris:#6b7a90; --gris-2:#9aa7ba;
+  --card:#ffffff; --linea:#e7ecf3;
+  --rojo:#ff5d6c; --verde:#23c98a;
+  --r:20px; --sombra:0 14px 30px -16px rgba(4,18,42,.55);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Outfit',system-ui,sans-serif; color:var(--tinta);
+  background:
+    radial-gradient(1100px 600px at 80% -8%, rgba(52,199,227,.30), transparent 60%),
+    radial-gradient(900px 520px at -10% 8%, rgba(198,242,60,.16), transparent 55%),
+    linear-gradient(165deg,var(--azul-noche),var(--azul-2) 60%,#0d2c54);
+  background-attachment:fixed; min-height:100vh;
+  padding-bottom:84px; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px;}
+
+/* Header */
+header{padding:18px 16px 8px;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+.logo{width:48px;height:48px;border-radius:14px;flex:0 0 auto;
+  background:linear-gradient(150deg,var(--cyan),var(--azul-3));
+  display:grid;place-items:center;font-size:26px;box-shadow:var(--sombra);}
+.brand h1{font-family:'Anton';font-weight:400;letter-spacing:.5px;line-height:.92;
+  margin:0;color:#fff;font-size:21px;text-transform:uppercase;}
+.brand p{margin:2px 0 0;color:var(--cyan-soft);font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;font-weight:600;}
+.gear{margin-left:auto;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);color:#fff;font-size:18px;display:grid;place-items:center;cursor:pointer;}
+.gear:active{transform:scale(.94);}
+
+/* Cards */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sombra);padding:18px;margin:14px 0;}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--cyan);}
+.muted{color:var(--gris);} .small{font-size:12.5px;}
+
+/* Hero pozo */
+.hero{background:linear-gradient(160deg,#102c54,#0a1e3f);color:#fff;text-align:center;
+  border:1px solid rgba(255,255,255,.07);position:relative;overflow:hidden;}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(420px 200px at 50% -30%,rgba(244,197,59,.25),transparent 70%);pointer-events:none;}
+.hero .lbl{color:var(--cyan-soft);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;}
+.pozo{font-family:'Anton';font-size:64px;line-height:1;color:var(--oro);margin:6px 0 2px;text-shadow:0 6px 20px rgba(244,197,59,.25);}
+.hero .sub{color:#dfe9f6;font-size:13.5px;margin-top:4px;}
+.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(198,242,60,.15);color:var(--lima);
+  border:1px solid rgba(198,242,60,.35);padding:5px 12px;border-radius:999px;font-weight:700;font-size:12px;margin-top:12px;}
+
+/* Progress */
+.bar{height:12px;background:#eef2f7;border-radius:999px;overflow:hidden;margin-top:8px;}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--verde),var(--lima));border-radius:999px;transition:width .5s ease;}
+.row-bt{display:flex;justify-content:space-between;align-items:center;}
+
+/* Countdown */
+.cd{display:flex;gap:8px;justify-content:center;margin-top:6px;}
+.cd > div{background:#0f294e;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 0;min-width:58px;text-align:center;}
+.cd b{font-family:'Anton';font-size:26px;color:#fff;display:block;line-height:1;}
+.cd span{font-size:10px;letter-spacing:1px;color:var(--cyan-soft);text-transform:uppercase;}
+
+/* Flag medallion */
+.flag{display:inline-grid;place-items:center;border-radius:50%;background:#eef4fb;border:1px solid var(--linea);overflow:hidden;}
+.flag.lg{width:54px;height:54px;font-size:30px;} .flag.md{width:40px;height:40px;font-size:22px;}
+.flag.sm{width:28px;height:28px;font-size:16px;}
+
+/* Participant card */
+.part{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--linea);}
+.part:last-child{border-bottom:none;}
+.part .nm{font-weight:700;font-size:15px;} .part .ph{display:flex;gap:8px;margin-top:5px;}
+.teamchip{display:inline-flex;align-items:center;gap:7px;background:#f4f7fb;border:1px solid var(--linea);
+  border-radius:999px;padding:4px 10px 4px 4px;font-size:12.5px;font-weight:600;max-width:160px;}
+.teamchip.dead{opacity:.45;text-decoration:line-through;}
+.teamchip .pt{font-size:9px;font-weight:800;color:#fff;border-radius:5px;padding:1px 5px;letter-spacing:.5px;}
+.pt.A{background:var(--cyan);} .pt.B{background:#8a98ad;}
+.idx{width:30px;height:30px;border-radius:9px;background:#0f294e;color:#fff;display:grid;place-items:center;
+  font-family:'Anton';font-size:14px;flex:0 0 auto;}
+.pay{margin-left:auto;font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:999px;letter-spacing:.4px;}
+.pay.ok{background:rgba(35,201,138,.14);color:#0e9b66;} .pay.no{background:rgba(255,93,108,.14);color:#d23b4a;}
+
+/* Team grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.team{background:#fff;border:1px solid var(--linea);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;position:relative;}
+.team.dead{opacity:.5;filter:grayscale(.5);} .team.champ{border-color:var(--oro);box-shadow:0 0 0 2px var(--oro) inset;}
+.team .top{display:flex;align-items:center;gap:10px;}
+.team .nm{font-weight:700;font-size:14px;line-height:1.1;}
+.team .owner{font-size:11.5px;color:var(--gris);}
+.fase{font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:3px 8px;border-radius:999px;align-self:flex-start;}
+.fase.alive{background:rgba(52,199,227,.16);color:#0e7c93;} .fase.out{background:#f0f2f6;color:#94a1b3;}
+.fase.gold{background:rgba(244,197,59,.2);color:#b3850a;}
+.potebadge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:800;color:#fff;border-radius:6px;padding:2px 6px;}
+
+/* Leaderboard */
+.lb{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--linea);}
+.lb:last-child{border-bottom:none;}
+.rank{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:'Anton';font-size:15px;color:#fff;background:#cfd8e4;flex:0 0 auto;}
+.rank.r1{background:linear-gradient(150deg,#f4c53b,#e0a106);} .rank.r2{background:#b9c2cf;} .rank.r3{background:#cd8e5a;}
+.lb .nm{font-weight:700;font-size:14.5px;} .lb .meta{font-size:11.5px;color:var(--gris);margin-top:2px;}
+.lb .flags{margin-left:auto;display:flex;gap:6px;align-items:center;}
+.crown{margin-left:6px;font-size:18px;}
+
+/* Buttons */
+.btn{appearance:none;border:none;cursor:pointer;font-family:'Outfit';font-weight:800;border-radius:14px;
+  padding:14px 16px;font-size:15px;width:100%;letter-spacing:.3px;transition:transform .08s ease,opacity .2s;}
+.btn:active{transform:scale(.98);} .btn[disabled]{opacity:.45;cursor:not-allowed;}
+.btn.primary{background:linear-gradient(120deg,var(--cyan),#1b8fb0);color:#06222b;}
+.btn.gold{background:linear-gradient(120deg,var(--oro),#dd9c08);color:#3a2900;}
+.btn.ghost{background:#eef2f7;color:var(--tinta);} .btn.danger{background:rgba(255,93,108,.14);color:#d23b4a;}
+.btn.sm{padding:9px 12px;font-size:13px;width:auto;border-radius:10px;}
+
+/* Inputs */
+input,select{font-family:'Outfit';font-size:14px;padding:11px 12px;border:1px solid var(--linea);border-radius:11px;width:100%;background:#fff;color:var(--tinta);}
+label.f{display:block;font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.6px;margin:0 0 5px;}
+
+/* Bottom nav */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,22,46,.92);backdrop-filter:blur(12px);
+  border-top:1px solid rgba(255,255,255,.08);padding:8px 0 calc(8px + env(safe-area-inset-bottom));}
+.nav-in{max-width:560px;margin:0 auto;display:flex;}
+.nav-in button{flex:1;background:none;border:none;color:#8fa4c2;font-family:'Outfit';font-weight:700;font-size:10.5px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
+.nav-in button .ic{font-size:20px;line-height:1;} .nav-in button.on{color:var(--cyan);}
+
+/* Admin / modal */
+.tabs{display:flex;gap:6px;background:#eef2f7;border-radius:12px;padding:4px;margin-bottom:6px;}
+.tabs button{flex:1;border:none;background:none;font-family:'Outfit';font-weight:700;font-size:12.5px;padding:9px 4px;border-radius:9px;color:var(--gris);cursor:pointer;}
+.tabs button.on{background:#fff;color:var(--tinta);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.adminrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--linea);}
+.adminrow:last-child{border-bottom:none;}
+.cnt{display:flex;gap:8px;margin:4px 0 10px;}
+.cnt > div{flex:1;background:#f4f7fb;border:1px solid var(--linea);border-radius:12px;padding:9px;text-align:center;}
+.cnt b{font-family:'Anton';font-size:22px;display:block;line-height:1;} .cnt.bad b{color:var(--rojo);} .cnt.good b{color:var(--verde);}
+.cnt span{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--gris);}
+.hide{display:none!important;}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#0c1b33;color:#fff;
+  padding:12px 18px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:50;box-shadow:var(--sombra);max-width:90%;text-align:center;}
+.empty{text-align:center;color:var(--gris);padding:26px 10px;}
+.reveal{animation:rv .5s ease both;} @keyframes rv{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none;} .bar>i{transition:none;}}
+a.link{color:var(--cyan);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏆</div>
+  <div class="brand">
+    <h1>Los Cocheros<br>Mundialistas</h1>
+    <p>Quiniela Mundial 2026 · Carora</p>
+  </div>
+  <button class="gear" id="gearBtn" title="Admin">⚙️</button>
+</header>
+
+<main class="wrap" id="app">
+  <div class="card"><div class="empty">Cargando…</div></div>
+</main>
+
+<nav>
+  <div class="nav-in">
+    <button data-view="pozo" class="on"><span class="ic">💰</span>Pozo</button>
+    <button data-view="sorteo"><span class="ic">🎲</span>Sorteo</button>
+    <button data-view="equipos"><span class="ic">⚽</span>Equipos</button>
+    <button data-view="tabla"><span class="ic">🥇</span>Tabla</button>
+  </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===================================================================
+   CONFIG — REEMPLAZA LA ANON KEY (la URL ya es la de carlospernaleteia)
+   =================================================================== */
+const SUPABASE_URL  = "https://kaluxolrsbrhzodqwqmz.supabase.co";
+const SUPABASE_ANON = "PEGA_AQUI_TU_ANON_KEY";   // <-- Supabase → Settings → API → anon public
+/* =================================================================== */
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const FASES = ["", "16vos", "Octavos", "Cuartos", "Semifinal", "Final", "Campeón"];
+const state = { equipos:[], parts:[], cfg:{}, view:"pozo", pin:null, adminTab:"sorteo" };
+
+/* ---------- helpers ---------- */
+function flag(eq){
+  if(!eq) return "❔";
+  if(eq.emoji) return eq.emoji;
+  const c=(eq.codigo||"").trim().toLowerCase();
+  if(c.length!==2) return "🏳️";
+  return String.fromCodePoint(0x1F1E6+c.charCodeAt(0)-97, 0x1F1E6+c.charCodeAt(1)-97);
+}
+const byId = id => state.equipos.find(e=>e.id===id);
+function fmtMoney(n){ return "$"+Number(n||0).toLocaleString("en-US"); }
+function toast(msg){
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
+}
+function esc(s){ return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+async function rpc(fn,args){
+  const {data,error}=await sb.rpc(fn,args);
+  if(error){ toast("⚠️ "+(error.message||"Error")); throw error; }
+  return data;
+}
+
+/* ---------- data ---------- */
+async function loadAll(){
+  const [e,p,c]=await Promise.all([
+    sb.from("equipos_cocheros").select("*").order("orden"),
+    sb.from("participantes_cocheros").select("*").order("orden"),
+    sb.from("config_cocheros").select("*").eq("id",1).single()
+  ]);
+  if(e.error||p.error){ document.getElementById("app").innerHTML=
+    `<div class="card"><div class="empty">No se pudo conectar a la base de datos.<br><span class="small">Revisa la anon key en el index.html.</span></div></div>`;
+    return; }
+  state.equipos=e.data||[]; state.parts=p.data||[]; state.cfg=c.data||{pozo_unitario:20};
+  render();
+}
+
+/* ---------- views ---------- */
+function render(){
+  const app=document.getElementById("app");
+  app.innerHTML = ({pozo:viewPozo, sorteo:viewSorteo, equipos:viewEquipos, tabla:viewTabla, admin:viewAdmin}[state.view]||viewPozo)();
+  app.querySelectorAll("[data-act]").forEach(el=>el.addEventListener("click",onAct));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b.dataset.view===state.view));
+}
+
+function viewPozo(){
+  const u=state.cfg.pozo_unitario||20, total=state.parts.length*u;
+  const pagados=state.parts.filter(p=>p.pago).length, recaudado=pagados*u;
+  const pct=state.parts.length?Math.round(pagados/state.parts.length*100):0;
+  const camp=state.equipos.find(e=>e.fase_nivel===6);
+  const ganador = camp ? state.parts.find(p=>p.equipo_fuerte_id===camp.id||p.equipo_debil_id===camp.id) : null;
+  return `
+  <div class="card hero reveal">
+    <div class="lbl">Pozo total · el ganador se lleva todo</div>
+    <div class="pozo">${fmtMoney(total)}</div>
+    <div class="sub">${state.parts.length} participantes · ${fmtMoney(u)} cada uno</div>
+    <div class="pill">⚽ Mundial 2026 · desde 16vos</div>
+    ${countdownHTML()}
+  </div>
+  ${ganador?`<div class="card reveal" style="background:linear-gradient(120deg,#fff7e3,#ffeec0);border:1px solid var(--oro)">
+     <div class="row-bt"><div><div class="eyebrow" style="color:#b3850a">¡Tenemos ganador!</div>
+     <div style="font-family:'Anton';font-size:24px;margin-top:2px">${esc(ganador.nombre)}</div>
+     <div class="small muted">Dueño de ${esc(camp.nombre)} ${flag(camp)} · Campeón del Mundo</div></div>
+     <div style="font-size:42px">👑</div></div></div>`:""}
+  <div class="card reveal">
+    <div class="row-bt"><div class="eyebrow">Control de pagos</div><div class="small muted">${pagados}/${state.parts.length} al día</div></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="row-bt" style="margin-top:8px">
+      <div class="small"><b style="font-family:'Anton';font-size:18px;color:var(--verde)">${fmtMoney(recaudado)}</b> recaudado</div>
+      <div class="small muted">faltan ${fmtMoney(total-recaudado)}</div>
+    </div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+    ${state.parts.map(p=>`<div class="row-bt" style="padding:7px 0;border-bottom:1px solid var(--linea)">
+        <span class="small" style="font-weight:600">${esc(p.nombre)}</span>
+        <span class="pay ${p.pago?'ok':'no'}">${p.pago?'PAGÓ':'PENDIENTE'}</span></div>`).join("")}
+    </div>
+  </div>`;
+}
+
+function countdownHTML(){
+  if(!state.cfg.fecha_objetivo || state.cfg.sorteo_bloqueado) return "";
+  return `<div id="cd" style="margin-top:14px"></div>`;
+}
+function tickCountdown(){
+  const el=document.getElementById("cd"); if(!el) return;
+  const diff=new Date(state.cfg.fecha_objetivo)-new Date();
+  if(diff<=0){ el.innerHTML=`<div class="small" style="color:var(--lima);font-weight:700">¡Hora del sorteo! 🎲</div>`; return; }
+  const d=Math.floor(diff/864e5),h=Math.floor(diff%864e5/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);
+  const cell=(v,l)=>`<div><b>${String(v).padStart(2,"0")}</b><span>${l}</span></div>`;
+  el.innerHTML=`<div class="small" style="color:var(--cyan-soft);margin-bottom:6px;letter-spacing:1px">FALTA PARA EL SORTEO</div>
+    <div class="cd">${d?cell(d,"días"):""}${cell(h,"hrs")}${cell(m,"min")}${cell(s,"seg")}</div>`;
+}
+
+function viewSorteo(){
+  const hecho=state.cfg.sorteo_bloqueado;
+  if(!hecho) return `
+   <div class="card reveal" style="text-align:center">
+     <div style="font-size:46px">🎲</div>
+     <div style="font-family:'Anton';font-size:24px;margin-top:4px">Sorteo pendiente</div>
+     <p class="muted small">Cuando la tabla de clasificación esté lista y los 32 equipos cargados,
+        el sorteo reparte a cada participante <b>un equipo Fuerte</b> y <b>un equipo Débil</b>.</p>
+     <p class="small muted">Lo corre el administrador desde ⚙️</p>
+   </div>`;
+  return `<div class="card reveal"><div class="eyebrow">Resultado del sorteo</div>
+    <div class="small muted" style="margin-bottom:4px">Cada quien con sus dos equipos · bloqueado el ${state.cfg.fecha_sorteo?new Date(state.cfg.fecha_sorteo).toLocaleString("es-VE"):""}</div>
+    ${state.parts.map((p,i)=>partRow(p,i)).join("")}</div>`;
+}
+function partRow(p,i){
+  const f=byId(p.equipo_fuerte_id), d=byId(p.equipo_debil_id);
+  const chip=(eq,pote)=>eq?`<span class="teamchip ${eq.vivo?'':'dead'}"><span class="flag sm">${flag(eq)}</span>${esc(eq.nombre)} <span class="pt ${pote}">${pote==='A'?'F':'D'}</span></span>`
+                          :`<span class="teamchip">—</span>`;
+  return `<div class="part reveal"><div class="idx">${i+1}</div>
+    <div style="min-width:0"><div class="nm">${esc(p.nombre)}</div>
+    <div class="ph">${chip(f,'A')}${chip(d,'B')}</div></div></div>`;
+}
+
+function viewEquipos(){
+  const orderVal=e=>(e.vivo?100:0)+e.fase_nivel;
+  const eqs=[...state.equipos].sort((a,b)=>orderVal(b)-orderVal(a)||a.orden-b.orden);
+  const vivos=state.equipos.filter(e=>e.vivo).length;
+  return `<div class="card reveal"><div class="row-bt"><div class="eyebrow">Los 32 equipos</div>
+     <div class="small muted">${vivos} vivos</div></div>
+     <p class="small muted" style="margin:4px 0 12px">Cada bandera tiene dueño. Los que avanzan suben; los eliminados se apagan.</p>
+     <div class="grid">${eqs.map(teamCard).join("")}</div></div>`;
+}
+function teamCard(e){
+  const owner=state.parts.find(p=>p.equipo_fuerte_id===e.id||p.equipo_debil_id===e.id);
+  const champ=e.fase_nivel===6;
+  let fcls="alive",ftxt="En "+FASES[e.fase_nivel];
+  if(champ){fcls="gold";ftxt="🏆 Campeón";} else if(!e.vivo){fcls="out";ftxt="Fuera · "+FASES[e.fase_nivel];}
+  return `<div class="team ${e.vivo?'':'dead'} ${champ?'champ':''}">
+    <span class="potebadge ${e.pote==='A'?'':'b'}" style="background:${e.pote==='A'?'var(--cyan)':'#8a98ad'}">${e.pote==='A'?'FUERTE':'DÉBIL'}</span>
+    <div class="top"><span class="flag md">${flag(e)}</span>
+      <div style="min-width:0"><div class="nm">${esc(e.nombre)}</div>
+      <div class="owner">${owner?'👤 '+esc(owner.nombre):'sin dueño'}</div></div></div>
+    <span class="fase ${fcls}">${ftxt}</span></div>`;
+}
+
+function scoreOf(p){
+  const f=byId(p.equipo_fuerte_id), d=byId(p.equipo_debil_id);
+  const nf=f?f.fase_nivel:0, nd=d?d.fase_nivel:0;
+  const vivos=(f&&f.vivo?1:0)+(d&&d.vivo?1:0);
+  return { best:Math.max(nf,nd), vivos, suma:nf+nd, f, d };
+}
+function viewTabla(){
+  if(state.cfg.sorteo_bloqueado!==true) return `<div class="card reveal"><div class="empty">La tabla se activa después del sorteo 🎲</div></div>`;
+  const ranked=[...state.parts].map(p=>({p,s:scoreOf(p)}))
+    .sort((a,b)=>b.s.best-a.s.best || b.s.vivos-a.s.vivos || b.s.suma-a.s.suma || a.p.nombre.localeCompare(b.p.nombre));
+  return `<div class="card reveal"><div class="eyebrow">Leaderboard · quién llega más lejos</div>
+    <p class="small muted" style="margin:4px 0 8px">Ordena por el equipo que más avanzó. Gana el pozo el dueño del Campeón.</p>
+    ${ranked.map((r,i)=>lbRow(r,i)).join("")}</div>`;
+}
+function lbRow(r,i){
+  const {p,s}=r; const rc=i===0?'r1':i===1?'r2':i===2?'r3':'';
+  const champ=(s.f&&s.f.fase_nivel===6)||(s.d&&s.d.fase_nivel===6);
+  const meta = s.best===0 ? "sin avance aún"
+    : `Mejor: ${FASES[s.best]} · ${s.vivos} ${s.vivos===1?'equipo vivo':'equipos vivos'}`;
+  return `<div class="lb reveal"><div class="rank ${rc}">${i+1}</div>
+    <div style="min-width:0"><div class="nm">${esc(p.nombre)}${champ?'<span class="crown">👑</span>':''}</div>
+      <div class="meta">${meta}</div></div>
+    <div class="flags"><span class="flag sm">${flag(s.f)}</span><span class="flag sm">${flag(s.d)}</span></div></div>`;
+}
+
+/* ---------- ADMIN ---------- */
+function viewAdmin(){
+  if(!state.pin) return `
+   <div class="card reveal">
+     <div class="eyebrow">Panel administrador</div>
+     <p class="small muted">Ingresa el PIN para gestionar equipos, sorteo, pagos y avances de ronda.</p>
+     <label class="f">PIN</label>
+     <input id="pinInput" type="password" inputmode="numeric" placeholder="••••••" />
+     <div style="height:10px"></div>
+     <button class="btn primary" data-act="login">Entrar</button>
+   </div>`;
+  const t=state.adminTab;
+  return `<div class="card reveal">
+    <div class="tabs">
+      <button class="${t==='sorteo'?'on':''}" data-act="atab" data-t="sorteo">Sorteo</button>
+      <button class="${t==='equipos'?'on':''}" data-act="atab" data-t="equipos">Equipos</button>
+      <button class="${t==='avance'?'on':''}" data-act="atab" data-t="avance">Avance</button>
+      <button class="${t==='pagos'?'on':''}" data-act="atab" data-t="pagos">Pagos</button>
+    </div>
+    ${({sorteo:adSorteo,equipos:adEquipos,avance:adAvance,pagos:adPagos}[t]||adSorteo)()}
+  </div>`;
+}
+function poteCounts(){
+  const A=state.equipos.filter(e=>e.pote==='A').length, B=state.equipos.filter(e=>e.pote==='B').length;
+  const sinBandera=state.equipos.filter(e=>!e.codigo&&!e.emoji).length;
+  return {A,B,sinBandera,total:state.equipos.length};
+}
+function adSorteo(){
+  const c=poteCounts(); const ok = c.A===16 && c.B===16 && c.total===32;
+  const hecho=state.cfg.sorteo_bloqueado;
+  return `
+   <div class="eyebrow">Sorteo</div>
+   <div class="cnt">
+     <div class="${c.A===16?'good':'bad'}"><b>${c.A}/16</b><span>Fuerte</span></div>
+     <div class="${c.B===16?'good':'bad'}"><b>${c.B}/16</b><span>Débil</span></div>
+     <div class="${c.total===32?'good':'bad'}"><b>${c.total}/32</b><span>Equipos</span></div>
+   </div>
+   ${c.sinBandera?`<p class="small" style="color:#d23b4a">⚠️ ${c.sinBandera} equipo(s) sin bandera. Complétalos en "Equipos".</p>`:""}
+   ${hecho
+     ? `<p class="small muted">✅ Sorteo realizado y bloqueado el ${state.cfg.fecha_sorteo?new Date(state.cfg.fecha_sorteo).toLocaleString("es-VE"):""}.</p>
+        <button class="btn danger" data-act="reset">Reiniciar sorteo</button>`
+     : `<p class="small muted">Reparte al azar 1 Fuerte + 1 Débil a cada participante. Una vez hecho, queda bloqueado.</p>
+        <button class="btn gold" data-act="sortear" ${ok?'':'disabled'}>🎲 Realizar sorteo</button>
+        ${ok?'':'<p class="small muted" style="text-align:center;margin-top:8px">Necesitas exactamente 32 equipos (16/16) para sortear.</p>'}`}
+   <hr style="border:none;border-top:1px solid var(--linea);margin:16px 0">
+   <div class="eyebrow">Contador del sorteo</div>
+   <label class="f">Fecha y hora objetivo</label>
+   <input id="cfgFecha" type="datetime-local" />
+   <div style="height:8px"></div>
+   <button class="btn ghost" data-act="savecfg">Guardar contador</button>`;
+}
+function adEquipos(){
+  const c=poteCounts();
+  return `<div class="eyebrow">Equipos (${c.total})</div>
+   <p class="small muted">Edita nombre, bandera (código ISO de 2 letras: ar, es, mx…) y pote. Guarda cada cambio.</p>
+   <div class="cnt"><div class="${c.A===16?'good':'bad'}"><b>${c.A}</b><span>Fuerte</span></div>
+     <div class="${c.B===16?'good':'bad'}"><b>${c.B}</b><span>Débil</span></div></div>
+   ${state.equipos.map(eqEditRow).join("")}
+   <hr style="border:none;border-top:1px solid var(--linea);margin:14px 0">
+   <button class="btn ghost" data-act="addteam">＋ Agregar equipo</button>`;
+}
+function eqEditRow(e){
+  return `<div style="border:1px solid var(--linea);border-radius:12px;padding:10px;margin:8px 0">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <span class="flag md" id="fl${e.id}">${flag(e)}</span>
+      <input id="nm${e.id}" value="${esc(e.nombre)}" />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <input id="cd${e.id}" value="${esc(e.codigo||'')}" placeholder="ISO (ar)" maxlength="2" />
+      <select id="po${e.id}"><option value="A" ${e.pote==='A'?'selected':''}>Fuerte</option>
+        <option value="B" ${e.pote==='B'?'selected':''}>Débil</option></select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn primary sm" data-act="saveteam" data-id="${e.id}">Guardar</button>
+      <button class="btn danger sm" data-act="delteam" data-id="${e.id}">Eliminar</button>
+    </div></div>`;
+}
+function adAvance(){
+  if(!state.cfg.sorteo_bloqueado) return `<div class="empty">Primero realiza el sorteo.</div>`;
+  const eqs=[...state.equipos].sort((a,b)=>(b.vivo-a.vivo)||a.orden-b.orden);
+  return `<div class="eyebrow">Avance de ronda</div>
+   <p class="small muted">Cada vez que un equipo gana, súbele la fase. Cuando pierde, desmarca "Vivo". El que gane la final ponlo en "Campeón".</p>
+   ${eqs.map(e=>`<div class="adminrow">
+     <div style="display:flex;align-items:center;gap:9px;min-width:0">
+       <span class="flag sm">${flag(e)}</span>
+       <span style="font-weight:700;font-size:13.5px">${esc(e.nombre)}</span></div>
+     <div style="display:flex;gap:6px;align-items:center">
+       <select id="fa${e.id}" style="width:auto;padding:7px 8px;font-size:12px">
+         ${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${e.fase_nivel===n?'selected':''}>${FASES[n]}</option>`).join("")}
+       </select>
+       <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700">
+         <input type="checkbox" id="vv${e.id}" ${e.vivo?'checked':''} style="width:auto"/>Vivo</label>
+       <button class="btn primary sm" data-act="savefase" data-id="${e.id}">OK</button>
+     </div></div>`).join("")}`;
+}
+function adPagos(){
+  const u=state.cfg.pozo_unitario||20;
+  return `<div class="eyebrow">Pagos (${fmtMoney(u)} c/u)</div>
+   <p class="small muted">Marca quién ya pagó su cuota en efectivo.</p>
+   ${state.parts.map(p=>`<div class="adminrow">
+     <span style="font-weight:700;font-size:14px">${esc(p.nombre)}</span>
+     <button class="btn ${p.pago?'ghost':'gold'} sm" data-act="togglepago" data-id="${p.id}" data-v="${p.pago?0:1}">
+       ${p.pago?'✅ Pagó':'Marcar pagó'}</button></div>`).join("")}`;
+}
+
+/* ---------- actions ---------- */
+async function onAct(ev){
+  const el=ev.currentTarget, act=el.dataset.act, id=el.dataset.id?Number(el.dataset.id):null;
+  try{
+  if(act==="login"){
+    state.pin=document.getElementById("pinInput").value.trim();
+    // validación ligera: probamos una RPC inofensiva
+    try{ await rpc("cocheros_set_config",{p_pin:state.pin,p_fecha_objetivo:null,p_pozo:null});
+         render(); }
+    catch{ state.pin=null; }
+    return;
+  }
+  if(act==="atab"){ state.adminTab=el.dataset.t; render(); return; }
+
+  if(act==="sortear"){
+    if(!confirm("¿Realizar el sorteo? Queda bloqueado y no se puede repetir sin reiniciarlo.")) return;
+    const fuertes=shuffle(state.equipos.filter(e=>e.pote==='A'));
+    const debiles=shuffle(state.equipos.filter(e=>e.pote==='B'));
+    const ps=shuffle([...state.parts]);
+    if(fuertes.length!==ps.length||debiles.length!==ps.length){ toast("Deben ser 16 y 16."); return; }
+    const asign=ps.map((p,i)=>({participante_id:p.id,fuerte_id:fuertes[i].id,debil_id:debiles[i].id}));
+    await rpc("cocheros_guardar_sorteo",{p_pin:state.pin,p_asignaciones:asign});
+    toast("🎉 ¡Sorteo realizado!"); await loadAll();
+  }
+  if(act==="reset"){
+    if(!confirm("¿Reiniciar el sorteo? Se borran las asignaciones actuales.")) return;
+    await rpc("cocheros_reset_sorteo",{p_pin:state.pin}); toast("Sorteo reiniciado"); await loadAll();
+  }
+  if(act==="savecfg"){
+    const v=document.getElementById("cfgFecha").value;
+    await rpc("cocheros_set_config",{p_pin:state.pin,p_fecha_objetivo:v?new Date(v).toISOString():null,p_pozo:null});
+    toast("Contador guardado"); await loadAll();
+  }
+  if(act==="saveteam"){
+    await rpc("cocheros_guardar_equipo",{p_pin:state.pin,p_id:id,
+      p_nombre:document.getElementById("nm"+id).value.trim(),
+      p_codigo:document.getElementById("cd"+id).value.trim().toLowerCase(),
+      p_emoji:null, p_pote:document.getElementById("po"+id).value});
+    toast("Equipo guardado"); await loadAll();
+  }
+  if(act==="delteam"){
+    if(!confirm("¿Eliminar este equipo?")) return;
+    await rpc("cocheros_eliminar_equipo",{p_pin:state.pin,p_id:id}); toast("Eliminado"); await loadAll();
+  }
+  if(act==="addteam"){
+    await rpc("cocheros_guardar_equipo",{p_pin:state.pin,p_id:0,p_nombre:"Nuevo equipo",p_codigo:null,p_emoji:null,p_pote:"B"});
+    await loadAll();
+  }
+  if(act==="savefase"){
+    await rpc("cocheros_actualizar_fase",{p_pin:state.pin,p_id:id,
+      p_nivel:Number(document.getElementById("fa"+id).value),
+      p_vivo:document.getElementById("vv"+id).checked});
+    toast("Fase actualizada"); await loadAll();
+  }
+  if(act==="togglepago"){
+    await rpc("cocheros_marcar_pago",{p_pin:state.pin,p_part_id:id,p_pago:el.dataset.v==="1"});
+    await loadAll();
+  }
+  }catch(e){ /* el toast ya avisó */ }
+}
+function shuffle(a){ a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---------- nav + boot ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{ state.view=b.dataset.view; render(); }));
+document.getElementById("gearBtn").addEventListener("click",()=>{ state.view="admin"; render(); });
+setInterval(tickCountdown,1000);
+setInterval(()=>{ if(state.view!=="admin") loadAll(); },15000); // refresco en vivo
+loadAll();
+</script>
+</body>
+</html>
