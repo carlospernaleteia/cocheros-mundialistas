@@ -126,9 +126,9 @@ label.f{display:block;font-size:11px;font-weight:700;color:var(--gris);text-tran
 nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,22,46,.92);backdrop-filter:blur(12px);
   border-top:1px solid rgba(255,255,255,.08);padding:8px 0 calc(8px + env(safe-area-inset-bottom));}
 .nav-in{max-width:560px;margin:0 auto;display:flex;}
-.nav-in button{flex:1;background:none;border:none;color:#8fa4c2;font-family:'Outfit';font-weight:700;font-size:10.5px;
+.nav-in button{flex:1;background:none;border:none;color:#8fa4c2;font-family:'Outfit';font-weight:700;font-size:9.5px;
   display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
-.nav-in button .ic{font-size:20px;line-height:1;} .nav-in button.on{color:var(--cyan);}
+.nav-in button .ic{font-size:18px;line-height:1;} .nav-in button.on{color:var(--cyan);}
 
 /* Admin / modal */
 .tabs{display:flex;gap:6px;background:#eef2f7;border-radius:12px;padding:4px;margin-bottom:6px;}
@@ -147,6 +147,28 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,22,46,.9
 .reveal{animation:rv .5s ease both;} @keyframes rv{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:none;}}
 @media (prefers-reduced-motion:reduce){.reveal{animation:none;} .bar>i{transition:none;}}
 a.link{color:var(--cyan);}
+/* Llaves / partidos */
+.rchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:4px;-webkit-overflow-scrolling:touch;}
+.rchips button{flex:0 0 auto;border:1px solid var(--linea);background:#fff;border-radius:999px;padding:8px 13px;font-family:'Outfit';font-weight:700;font-size:12.5px;color:var(--gris);cursor:pointer;}
+.rchips button.on{background:var(--azul-noche);color:#fff;border-color:var(--azul-noche);}
+.match{border:1px solid var(--linea);border-radius:16px;padding:8px 12px;margin:10px 0;background:#fff;}
+.ml{display:flex;align-items:center;gap:10px;padding:6px 0;}
+.ml .t{font-weight:700;font-size:14px;line-height:1.1;}
+.ml .ow{font-size:11.5px;color:var(--gris);}
+.ml.win .t{color:#0e7c93;}
+.ml .adv{margin-left:auto;color:var(--verde);font-weight:800;font-size:17px;}
+.ml.pend{opacity:.6;}
+.mvs{display:flex;align-items:center;gap:8px;margin:1px 0;}
+.mvs::before,.mvs::after{content:"";flex:1;height:1px;background:var(--linea);}
+.mvs span{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--gris-2);}
+.mstatus{font-size:11px;font-weight:700;margin-top:6px;text-align:center;border-radius:8px;padding:5px;}
+.mstatus.played{background:rgba(35,201,138,.12);color:#0e9b66;}
+.mstatus.pend{background:#f1f4f8;color:var(--gris);}
+.mstatus.tbd{background:#f1f4f8;color:var(--gris-2);}
+.derby{background:linear-gradient(90deg,rgba(244,197,59,.18),rgba(198,242,60,.14));border:1px dashed var(--oro);border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;color:#a9790a;margin-bottom:4px;text-align:center;}
+.calhead{font-family:'Anton';font-size:15px;color:#fff;background:var(--azul-noche);border-radius:10px;padding:7px 12px;margin:14px 0 6px;letter-spacing:.5px;}
+.caltop{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:var(--tinta);padding-bottom:5px;border-bottom:1px solid var(--linea);margin-bottom:2px;gap:8px;}
+.caltop .muted{font-weight:600;font-size:11px;text-align:right;}
 </style>
 </head>
 <body>
@@ -169,6 +191,8 @@ a.link{color:var(--cyan);}
     <button data-view="pozo" class="on"><span class="ic">💰</span>Pozo</button>
     <button data-view="sorteo"><span class="ic">🎲</span>Sorteo</button>
     <button data-view="equipos"><span class="ic">⚽</span>Equipos</button>
+    <button data-view="llaves"><span class="ic">🗝️</span>Llaves</button>
+    <button data-view="calendario"><span class="ic">📅</span>Juegos</button>
     <button data-view="tabla"><span class="ic">🥇</span>Tabla</button>
   </div>
 </nav>
@@ -185,7 +209,26 @@ const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const FASES = ["", "16vos", "Octavos", "Cuartos", "Semifinal", "Final", "Campeón"];
-const state = { equipos:[], parts:[], cfg:{}, view:"pozo", pin:null, adminTab:"sorteo" };
+// Calendario oficial 16vos (hora Venezuela 🇻🇪). Índice = partido de llave 1..16 (posiciones 2k-1 vs 2k).
+const SCHEDULE = [
+  {iso:"2026-06-29T16:30:00-04:00", dia:"Lun 29 jun", hora:"4:30 PM", sede:"Gillette Stadium · Boston"},       // 1  Alemania-Paraguay
+  {iso:"2026-06-30T17:00:00-04:00", dia:"Mar 30 jun", hora:"5:00 PM", sede:"MetLife · Nueva Jersey"},          // 2  Francia-Suecia
+  {iso:"2026-06-28T15:00:00-04:00", dia:"Dom 28 jun", hora:"3:00 PM", sede:"SoFi Stadium · Los Ángeles"},      // 3  Sudáfrica-Canadá
+  {iso:"2026-06-29T21:00:00-04:00", dia:"Lun 29 jun", hora:"9:00 PM", sede:"Estadio BBVA · Monterrey"},        // 4  P. Bajos-Marruecos
+  {iso:"2026-07-02T15:00:00-04:00", dia:"Jue 2 jul",  hora:"3:00 PM", sede:"SoFi Stadium · Los Ángeles"},      // 5  España-Austria
+  {iso:"2026-07-02T19:00:00-04:00", dia:"Jue 2 jul",  hora:"7:00 PM", sede:"BMO Field · Toronto"},             // 6  Portugal-Croacia
+  {iso:"2026-07-01T16:00:00-04:00", dia:"Mié 1 jul",  hora:"4:00 PM", sede:"Lumen Field · Seattle"},           // 7  Bélgica-Senegal
+  {iso:"2026-07-01T20:00:00-04:00", dia:"Mié 1 jul",  hora:"8:00 PM", sede:"Bahía de San Francisco"},          // 8  EE.UU.-Bosnia
+  {iso:"2026-06-29T13:00:00-04:00", dia:"Lun 29 jun", hora:"1:00 PM", sede:"NRG Stadium · Houston"},           // 9  Brasil-Japón
+  {iso:"2026-06-30T13:00:00-04:00", dia:"Mar 30 jun", hora:"1:00 PM", sede:"AT&T Stadium · Dallas"},           // 10 C. Marfil-Noruega
+  {iso:"2026-06-30T21:00:00-04:00", dia:"Mar 30 jun", hora:"9:00 PM", sede:"Estadio Azteca · CDMX"},           // 11 México-Ecuador
+  {iso:"2026-07-01T12:00:00-04:00", dia:"Mié 1 jul",  hora:"12:00 PM", sede:"Mercedes-Benz · Atlanta"},        // 12 Inglaterra-RD Congo
+  {iso:"2026-07-03T18:00:00-04:00", dia:"Vie 3 jul",  hora:"6:00 PM", sede:"Hard Rock · Miami"},               // 13 Argentina-Cabo Verde
+  {iso:"2026-07-03T14:00:00-04:00", dia:"Vie 3 jul",  hora:"2:00 PM", sede:"AT&T Stadium · Dallas"},           // 14 Australia-Egipto
+  {iso:"2026-07-02T23:00:00-04:00", dia:"Jue 2 jul",  hora:"11:00 PM", sede:"BC Place · Vancouver"},           // 15 Suiza-Argelia
+  {iso:"2026-07-03T21:30:00-04:00", dia:"Vie 3 jul",  hora:"9:30 PM", sede:"Arrowhead · Kansas City"}          // 16 Colombia-Ghana
+];
+const state = { equipos:[], parts:[], cfg:{}, view:"pozo", pin:null, adminTab:"sorteo", llavesRound:1 };
 
 /* ---------- helpers ---------- */
 function flag(eq){
@@ -196,7 +239,32 @@ function flag(eq){
   return String.fromCodePoint(0x1F1E6+c.charCodeAt(0)-97, 0x1F1E6+c.charCodeAt(1)-97);
 }
 const byId = id => state.equipos.find(e=>e.id===id);
+const ownerOf = eq => eq ? state.parts.find(p=>p.equipo_fuerte_id===eq.id||p.equipo_debil_id===eq.id) : null;
+const teamAtPos = pos => state.equipos.find(e=>e.bracket_pos===pos);
+function pairWinner(a,b){
+  if(!a&&!b) return null;
+  if(a&&!b) return a; if(b&&!a) return b;
+  if(a.fase_nivel!==b.fase_nivel) return a.fase_nivel>b.fase_nivel?a:b;
+  if(a.vivo&&!b.vivo) return a; if(b.vivo&&!a.vivo) return b;
+  return null; // aún no se decide
+}
+function buildBracket(){
+  let r1=[]; for(let i=0;i<16;i++) r1.push({a:teamAtPos(2*i+1), b:teamAtPos(2*i+2)});
+  const rounds=[r1]; let prev=r1;
+  while(prev.length>1){
+    const next=[];
+    for(let i=0;i<prev.length;i+=2)
+      next.push({a:pairWinner(prev[i].a,prev[i].b), b:pairWinner(prev[i+1].a,prev[i+1].b)});
+    rounds.push(next); prev=next;
+  }
+  return rounds; // [16vos(16), Octavos(8), Cuartos(4), Semis(2), Final(1)]
+}
 function fmtMoney(n){ return "$"+Number(n||0).toLocaleString("en-US"); }
+function toLocalInput(iso){
+  if(!iso) return "";
+  const d=new Date(iso), p=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 function toast(msg){
   const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
   document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
@@ -225,7 +293,7 @@ async function loadAll(){
 /* ---------- views ---------- */
 function render(){
   const app=document.getElementById("app");
-  app.innerHTML = ({pozo:viewPozo, sorteo:viewSorteo, equipos:viewEquipos, tabla:viewTabla, admin:viewAdmin}[state.view]||viewPozo)();
+  app.innerHTML = ({pozo:viewPozo, sorteo:viewSorteo, equipos:viewEquipos, llaves:viewLlaves, calendario:viewCalendario, tabla:viewTabla, admin:viewAdmin}[state.view]||viewPozo)();
   app.querySelectorAll("[data-act]").forEach(el=>el.addEventListener("click",onAct));
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b.dataset.view===state.view));
 }
@@ -299,6 +367,76 @@ function partRow(p,i){
   return `<div class="part reveal"><div class="idx">${i+1}</div>
     <div style="min-width:0"><div class="nm">${esc(p.nombre)}</div>
     <div class="ph">${chip(f,'A')}${chip(d,'B')}</div></div></div>`;
+}
+
+function viewLlaves(){
+  const sinPos = state.equipos.every(e=>!e.bracket_pos);
+  const rounds = buildBracket();
+  const champ = state.equipos.find(e=>e.fase_nivel===6);
+  const r = state.llavesRound;
+  const labels=["16vos","Octavos","Cuartos","Semis","Final"], counts=[16,8,4,2,1];
+  const matches = rounds[r-1]||[];
+  let head=`<div class="card reveal"><div class="row-bt"><div class="eyebrow">Llaves del Mundial</div>
+     <div class="small muted">${state.equipos.filter(e=>e.vivo).length} vivos</div></div>
+     <p class="small muted" style="margin:4px 0 10px">Quién juega contra quién y de quién es cada selección. Toca una ronda.</p>`;
+  if(champ) head+=`<div class="mstatus played" style="font-size:13px;margin-bottom:8px">🏆 Campeón: ${flag(champ)} ${esc(champ.nombre)} · 👑 ${esc((ownerOf(champ)||{}).nombre||'')}</div>`;
+  head+=`<div class="rchips">${labels.map((l,i)=>`<button data-act="lround" data-r="${i+1}" class="${r===i+1?'on':''}">${l} <span style="opacity:.6">(${counts[i]})</span></button>`).join("")}</div>`;
+  if(sinPos) head+=`<div class="mstatus tbd" style="margin-top:8px">Aún no asignas las posiciones de las llaves. Ve a ⚙️ → Equipos (o corre el SQL de actualización).</div>`;
+  return head + matches.map(m=>matchCard(m,r)).join("") + `</div>`;
+}
+function matchCard(m,r){
+  const a=m.a, b=m.b, w=pairWinner(a,b);
+  const decided = !!(a&&b&&w);
+  const oA=ownerOf(a), oB=ownerOf(b);
+  const derby = a&&b&&oA&&oB&&oA.id===oB.id;
+  const line=(eq,isWin)=>{
+    if(!eq) return `<div class="ml pend"><span class="flag sm">⬜</span><span class="muted small">Por definir</span></div>`;
+    const o=ownerOf(eq);
+    return `<div class="ml ${isWin?'win':''}"><span class="flag sm">${flag(eq)}</span>
+      <div style="min-width:0"><div class="t">${esc(eq.nombre)}</div><div class="ow">${o?'👤 '+esc(o.nombre):'sin dueño'}</div></div>
+      ${isWin?'<span class="adv">✓</span>':''}</div>`;
+  };
+  let st,cls;
+  if(!a||!b){ st = (a||b)?"Esperando rival":"Esperando ronda anterior"; cls="tbd"; }
+  else if(r===5 && decided){ st=`🏆 ${esc(w.nombre)} — ¡Campeón!`; cls="played"; }
+  else if(decided){ st=`${esc(w.nombre)} clasificó a ${FASES[r+1]}`; cls="played"; }
+  else { st="Por jugar"; cls="pend"; }
+  return `<div class="match reveal">
+    ${derby?`<div class="derby">🔥 Duelo interno · ambos son de ${esc(oA.nombre)}</div>`:''}
+    ${line(a, decided && w.id===a.id)}
+    <div class="mvs"><span>VS</span></div>
+    ${line(b, decided && w.id===b.id)}
+    <div class="mstatus ${cls}">${st}</div></div>`;
+}
+
+function viewCalendario(){
+  const items=[];
+  for(let m=1;m<=16;m++) items.push({a:teamAtPos(2*m-1), b:teamAtPos(2*m), s:SCHEDULE[m-1]});
+  const ready = items.some(it=>it.a||it.b);
+  items.sort((x,y)=>x.s.iso.localeCompare(y.s.iso));
+  let html=`<div class="card reveal"><div class="eyebrow">Calendario · Dieciseisavos</div>
+    <p class="small muted" style="margin:4px 0 10px">Horario de Venezuela 🇻🇪 · cada partido con su dueño.</p>`;
+  if(!ready) html+=`<div class="mstatus tbd">Asigna las posiciones de las llaves (corre el SQL) para ver los cruces.</div>`;
+  let dia=null;
+  items.forEach(it=>{ if(it.s.dia!==dia){ dia=it.s.dia; html+=`<div class="calhead">${dia}</div>`; } html+=calCard(it); });
+  html+=`<div class="mstatus tbd" style="margin-top:14px">Octavos 4–7 jul · Cuartos 9–12 jul · Semis 14–15 jul · Final dom 19 jul</div></div>`;
+  return html;
+}
+function calCard(it){
+  const {a,b,s}=it, w=pairWinner(a,b), decided=!!(a&&b&&w);
+  const line=(eq,win)=>{
+    if(!eq) return `<div class="ml pend"><span class="flag sm">⬜</span><span class="muted small">Por definir</span></div>`;
+    const o=ownerOf(eq);
+    return `<div class="ml ${win?'win':''}"><span class="flag sm">${flag(eq)}</span>
+      <div style="min-width:0"><div class="t">${esc(eq.nombre)}</div><div class="ow">${o?'👤 '+esc(o.nombre):'sin dueño'}</div></div>
+      ${win?'<span class="adv">✓</span>':''}</div>`;
+  };
+  return `<div class="match reveal">
+    <div class="caltop"><span>🕒 ${s.hora}</span><span class="muted">📍 ${s.sede}</span></div>
+    ${line(a, decided&&w.id===a.id)}
+    <div class="mvs"><span>VS</span></div>
+    ${line(b, decided&&w.id===b.id)}
+    ${decided?`<div class="mstatus played">${esc(w.nombre)} clasificó a Octavos</div>`:''}</div>`;
 }
 
 function viewEquipos(){
@@ -395,7 +533,7 @@ function adSorteo(){
    <hr style="border:none;border-top:1px solid var(--linea);margin:16px 0">
    <div class="eyebrow">Contador del sorteo</div>
    <label class="f">Fecha y hora objetivo</label>
-   <input id="cfgFecha" type="datetime-local" />
+   <input id="cfgFecha" type="datetime-local" value="${toLocalInput(state.cfg.fecha_objetivo)}" />
    <div style="height:8px"></div>
    <button class="btn ghost" data-act="savecfg">Guardar contador</button>`;
 }
@@ -420,6 +558,10 @@ function eqEditRow(e){
       <select id="po${e.id}"><option value="A" ${e.pote==='A'?'selected':''}>Fuerte</option>
         <option value="B" ${e.pote==='B'?'selected':''}>Débil</option></select>
     </div>
+    <select id="bp${e.id}" style="margin-top:8px">
+      <option value="">Sin posición de llave</option>
+      ${Array.from({length:32},(_,k)=>k+1).map(n=>`<option value="${n}" ${e.bracket_pos===n?'selected':''}>Llave ${n} · ${n<=16?'Izq':'Der'}</option>`).join("")}
+    </select>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn primary sm" data-act="saveteam" data-id="${e.id}">Guardar</button>
       <button class="btn danger sm" data-act="delteam" data-id="${e.id}">Eliminar</button>
@@ -466,6 +608,7 @@ async function onAct(ev){
     return;
   }
   if(act==="atab"){ state.adminTab=el.dataset.t; render(); return; }
+  if(act==="lround"){ state.llavesRound=Number(el.dataset.r); render(); return; }
 
   if(act==="sortear"){
     if(!confirm("¿Realizar el sorteo? Queda bloqueado y no se puede repetir sin reiniciarlo.")) return;
@@ -491,6 +634,8 @@ async function onAct(ev){
       p_nombre:document.getElementById("nm"+id).value.trim(),
       p_codigo:document.getElementById("cd"+id).value.trim().toLowerCase(),
       p_emoji:null, p_pote:document.getElementById("po"+id).value});
+    const bpv=document.getElementById("bp"+id).value;
+    try{ await rpc("cocheros_set_bracket",{p_pin:state.pin,p_id:id,p_pos:bpv?Number(bpv):null}); }catch(_){}
     toast("Equipo guardado"); await loadAll();
   }
   if(act==="delteam"){
