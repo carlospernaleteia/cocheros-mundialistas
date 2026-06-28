@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#0a1e3f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Cocheros" />
+<meta name="application-name" content="Cocheros" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a1e3f'/%3E%3Ctext x='50' y='64' font-size='52' text-anchor='middle'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a1e3f'/%3E%3Ctext x='50' y='64' font-size='52' text-anchor='middle'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E" />
 <title>Los Cocheros Mundialistas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -401,13 +408,16 @@ function abbr(n){ return (n||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
 function llavesCuadro(){
   if(state.equipos.every(e=>!e.bracket_pos))
     return `<div class="card reveal"><div class="mstatus tbd">Asigna las posiciones de las llaves (corre el SQL) para ver el cuadro.</div></div>`;
-  const r=buildBracket();
-  const win=m=>pairWinner(m.a,m.b);
+  // Cada equipo solo ocupa una columna si REALMENTE alcanzó esa ronda (su fase_nivel).
+  const occ=(a,b,lvl)=>{ for(let p=a;p<=b;p++){ const t=teamAtPos(p); if(t&&t.fase_nivel>=lvl) return t; } return null; };
   const cols={
     r32:Array.from({length:32},(_,i)=>teamAtPos(i+1)),
-    oct:r[0].map(win), cua:r[1].map(win), sem:r[2].map(win), fin:r[3].map(win)
+    oct:Array.from({length:16},(_,j)=>occ(2*j+1,2*j+2,2)),
+    cua:Array.from({length:8},(_,k)=>occ(4*k+1,4*k+4,3)),
+    sem:Array.from({length:4},(_,s)=>occ(8*s+1,8*s+8,4)),
+    fin:Array.from({length:2},(_,f)=>occ(16*f+1,16*f+16,5))
   };
-  const champ=pairWinner(r[4][0].a,r[4][0].b);
+  const champ=occ(1,32,6);
   const W=720, cx=360;
   const X={r32L:46,octL:150,cuaL:232,semL:300,finL:344,  finR:376,semR:420,cuaR:488,octR:570,r32R:674};
   const yR32=i=>128+i*64, yOct=j=>160+128*j, yCua=k=>224+256*k, ySem=s=>352+512*s, yFin=608;
@@ -463,15 +473,17 @@ function llavesCuadro(){
   // finalistas
   nodes+=node(X.finL,yFin,cols.fin[0],13,false);
   nodes+=node(X.finR,yFin,cols.fin[1],13,false);
-  // centro: trofeo o campeón
+  // centro: trofeo o campeón (elevado para no montarse con la final)
+  const ey=yFin-82;
+  lines+=`<path d="M${cx} ${ey+60} V${yFin}" ${LINE}/>`;
   let center;
-  if(champ){ center=`<g><circle cx="${cx}" cy="${yFin-34}" r="22" fill="#0e2747" stroke="#f4c53b" stroke-width="3"/>
-      <text x="${cx}" y="${yFin-33}" font-size="26" text-anchor="middle" dominant-baseline="central">${flag(champ)}</text>
-      <text x="${cx}" y="${yFin+2}" font-size="13" font-weight="800" text-anchor="middle" fill="#f4c53b">CAMPEÓN</text>
-      <text x="${cx}" y="${yFin+20}" font-size="11" text-anchor="middle" fill="#dbe7f6">${esc(abbr(champ.nombre))}</text></g>`;
-  } else { center=`<text x="${cx}" y="${yFin-30}" font-size="30" text-anchor="middle">🏆</text>
-      <text x="${cx}" y="${yFin+2}" font-size="13" font-weight="800" text-anchor="middle" fill="#f4c53b">FINAL</text>
-      <text x="${cx}" y="${yFin+20}" font-size="10" text-anchor="middle" fill="#9fb4d6">19 jul</text>`; }
+  if(champ){ center=`<g><circle cx="${cx}" cy="${ey}" r="25" fill="#0e2747" stroke="#f4c53b" stroke-width="3"/>
+      <text x="${cx}" y="${ey+1}" font-size="30" text-anchor="middle" dominant-baseline="central">${flag(champ)}</text>
+      <text x="${cx}" y="${ey+40}" font-size="13" font-weight="800" text-anchor="middle" fill="#f4c53b">CAMPEÓN</text>
+      <text x="${cx}" y="${ey+57}" font-size="11" text-anchor="middle" fill="#dbe7f6">${esc(abbr(champ.nombre))}</text></g>`;
+  } else { center=`<text x="${cx}" y="${ey}" font-size="34" text-anchor="middle" dominant-baseline="central">🏆</text>
+      <text x="${cx}" y="${ey+38}" font-size="13" font-weight="800" text-anchor="middle" fill="#f4c53b">FINAL</text>
+      <text x="${cx}" y="${ey+55}" font-size="10" text-anchor="middle" fill="#9fb4d6">19 jul</text>`; }
   // etiquetas de ronda (arriba)
   const lab=(x,t)=>`<text x="${x}" y="92" font-size="11" font-weight="800" text-anchor="middle" fill="#7fa0cf" letter-spacing="1">${t}</text>`;
   const labels=lab(X.r32L,"16VOS")+lab(X.octL,"8VOS")+lab(X.cuaL,"4TOS")+lab(X.semL,"SEMIS")
