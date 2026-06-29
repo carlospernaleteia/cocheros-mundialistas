@@ -176,6 +176,7 @@ a.link{color:var(--cyan);}
 .calhead{font-family:'Anton';font-size:15px;color:#fff;background:var(--azul-noche);border-radius:10px;padding:7px 12px;margin:14px 0 6px;letter-spacing:.5px;}
 .caltop{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:var(--tinta);padding-bottom:5px;border-bottom:1px solid var(--linea);margin-bottom:2px;gap:8px;}
 .caltop .muted{font-weight:600;font-size:11px;text-align:right;}
+.rbadge{display:inline-block;background:var(--cyan);color:#06222b;font-size:9px;font-weight:800;border-radius:5px;padding:1px 5px;margin-left:4px;letter-spacing:.3px;vertical-align:middle;}
 .cuadrobox{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .cuadrobox svg{min-width:340px;}
 </style>
@@ -237,7 +238,29 @@ const SCHEDULE = [
   {iso:"2026-07-02T23:00:00-04:00", dia:"Jue 2 jul",  hora:"11:00 PM", sede:"BC Place · Vancouver"},           // 15 Suiza-Argelia
   {iso:"2026-07-03T21:30:00-04:00", dia:"Vie 3 jul",  hora:"9:30 PM", sede:"Arrowhead · Kansas City"}          // 16 Colombia-Ghana
 ];
-const state = { equipos:[], parts:[], cfg:{}, view:"pozo", pin:null, adminTab:"sorteo", llavesRound:1, llavesMode:"cuadro" };
+// Octavos (8) · Cuartos (4) · Semis (2) · Final (1). Fechas y sedes oficiales FIFA; hora exacta la confirma FIFA según clasificados.
+const OCT=[
+  {d:"2026-07-04",o:1,dia:"Sáb 4 jul", hora:"Por confirmar", sede:"Filadelfia"},          // O1 = P89
+  {d:"2026-07-04",o:2,dia:"Sáb 4 jul", hora:"Por confirmar", sede:"NRG · Houston"},        // O2 = P90
+  {d:"2026-07-06",o:1,dia:"Lun 6 jul", hora:"Por confirmar", sede:"AT&T · Dallas"},        // O3 = P93
+  {d:"2026-07-06",o:2,dia:"Lun 6 jul", hora:"Por confirmar", sede:"Lumen Field · Seattle"},// O4 = P94
+  {d:"2026-07-05",o:1,dia:"Dom 5 jul", hora:"Por confirmar", sede:"MetLife · Nueva Jersey"},// O5 = P91
+  {d:"2026-07-05",o:2,dia:"Dom 5 jul", hora:"Por confirmar", sede:"Estadio Azteca · CDMX"},// O6 = P92
+  {d:"2026-07-07",o:1,dia:"Mar 7 jul", hora:"Por confirmar", sede:"Mercedes-Benz · Atlanta"},// O7 = P95
+  {d:"2026-07-07",o:2,dia:"Mar 7 jul", hora:"Por confirmar", sede:"BC Place · Vancouver"}  // O8 = P96
+];
+const CUA=[
+  {d:"2026-07-09",o:1,dia:"Jue 9 jul",  hora:"Por confirmar", sede:"Gillette · Boston"},        // Q1 = P97
+  {d:"2026-07-10",o:1,dia:"Vie 10 jul", hora:"Por confirmar", sede:"SoFi · Los Ángeles"},       // Q2 = P98
+  {d:"2026-07-11",o:1,dia:"Sáb 11 jul", hora:"Por confirmar", sede:"Hard Rock · Miami"},        // Q3 = P99
+  {d:"2026-07-11",o:2,dia:"Sáb 11 jul", hora:"Por confirmar", sede:"Arrowhead · Kansas City"}   // Q4 = P100
+];
+const SEM=[
+  {d:"2026-07-14",o:1,dia:"Mar 14 jul", hora:"Por confirmar", sede:"AT&T · Dallas"},        // S1 = P101
+  {d:"2026-07-15",o:1,dia:"Mié 15 jul", hora:"Por confirmar", sede:"Mercedes-Benz · Atlanta"} // S2 = P102
+];
+const FIN={d:"2026-07-19",o:1,dia:"Dom 19 jul", hora:"3:00 PM", sede:"MetLife · Nueva Jersey"}; // P104
+const state = { equipos:[], parts:[], cfg:{}, view:"pozo", pin:null, adminTab:"sorteo", llavesRound:1, llavesMode:"cuadro", calRound:"all" };
 
 /* ---------- helpers ---------- */
 function flag(eq){
@@ -250,6 +273,8 @@ function flag(eq){
 const byId = id => state.equipos.find(e=>e.id===id);
 const ownerOf = eq => eq ? state.parts.find(p=>p.equipo_fuerte_id===eq.id||p.equipo_debil_id===eq.id) : null;
 const teamAtPos = pos => state.equipos.find(e=>e.bracket_pos===pos);
+// Ocupante real de una zona del cuadro: el equipo que alcanzó al menos ese nivel de fase.
+function occBracket(a,b,lvl){ for(let p=a;p<=b;p++){ const t=teamAtPos(p); if(t&&t.fase_nivel>=lvl) return t; } return null; }
 function pairWinner(a,b){
   if(!a&&!b) return null;
   if(a&&!b) return a; if(b&&!a) return b;
@@ -522,16 +547,24 @@ function matchCard(m,r){
 }
 
 function viewCalendario(){
-  const items=[];
-  for(let m=1;m<=16;m++) items.push({a:teamAtPos(2*m-1), b:teamAtPos(2*m), s:SCHEDULE[m-1]});
-  const ready = items.some(it=>it.a||it.b);
-  items.sort((x,y)=>x.s.iso.localeCompare(y.s.iso));
-  let html=`<div class="card reveal"><div class="eyebrow">Calendario · Dieciseisavos</div>
-    <p class="small muted" style="margin:4px 0 10px">Horario de Venezuela 🇻🇪 · cada partido con su dueño.</p>`;
-  if(!ready) html+=`<div class="mstatus tbd">Asigna las posiciones de las llaves (corre el SQL) para ver los cruces.</div>`;
+  if(state.equipos.every(e=>!e.bracket_pos))
+    return `<div class="card reveal"><div class="mstatus tbd">Asigna las posiciones de las llaves (corre el SQL) para ver el calendario.</div></div>`;
+  const all=[];
+  const push=(a,b,s,rk,rl)=>all.push({a,b,s,rk,rl,sort:s.iso||(s.d+"T"+String(s.o).padStart(2,"0"))});
+  for(let m=1;m<=16;m++) push(teamAtPos(2*m-1),teamAtPos(2*m),SCHEDULE[m-1],"16","16vos");
+  for(let j=0;j<8;j++)  push(occBracket(4*j+1,4*j+2,2),occBracket(4*j+3,4*j+4,2),OCT[j],"8","Octavos");
+  for(let c=0;c<4;c++)  push(occBracket(8*c+1,8*c+4,3),occBracket(8*c+5,8*c+8,3),CUA[c],"4","Cuartos");
+  for(let s=0;s<2;s++)  push(occBracket(16*s+1,16*s+8,4),occBracket(16*s+9,16*s+16,4),SEM[s],"S","Semifinal");
+  push(occBracket(1,16,5),occBracket(17,32,5),FIN,"F","FINAL");
+  const filt=state.calRound||"all";
+  const list=(filt==="all"?all:all.filter(x=>x.rk===filt)).sort((x,y)=>x.sort.localeCompare(y.sort));
+  const chips=[["all","Todos"],["16","16vos"],["8","Octavos"],["4","Cuartos"],["S","Semis"],["F","Final"]];
+  let html=`<div class="card reveal"><div class="eyebrow">Calendario · hasta la Final</div>
+    <p class="small muted" style="margin:4px 0 8px">Hora de Venezuela 🇻🇪 · los nombres se llenan al clasificar.</p>
+    <div class="rchips">${chips.map(([k,l])=>`<button data-act="calround" data-r="${k}" class="${filt===k?'on':''}">${l}</button>`).join("")}</div>`;
   let dia=null;
-  items.forEach(it=>{ if(it.s.dia!==dia){ dia=it.s.dia; html+=`<div class="calhead">${dia}</div>`; } html+=calCard(it); });
-  html+=`<div class="mstatus tbd" style="margin-top:14px">Octavos 4–7 jul · Cuartos 9–12 jul · Semis 14–15 jul · Final dom 19 jul</div></div>`;
+  list.forEach(it=>{ if(it.s.dia!==dia){ dia=it.s.dia; html+=`<div class="calhead">${dia}</div>`; } html+=calCard(it); });
+  html+=`<div class="mstatus tbd" style="margin-top:12px">De Octavos en adelante, FIFA confirma la hora exacta según los clasificados.</div></div>`;
   return html;
 }
 function calCard(it){
@@ -543,12 +576,13 @@ function calCard(it){
       <div style="min-width:0"><div class="t">${esc(eq.nombre)}</div><div class="ow">${o?'👤 '+esc(o.nombre):'sin dueño'}</div></div>
       ${win?'<span class="adv">✓</span>':''}</div>`;
   };
+  const hora = (s.hora && s.hora!=="Por confirmar") ? `🕒 ${s.hora}` : `🕒 Hora por confirmar`;
   return `<div class="match reveal">
-    <div class="caltop"><span>🕒 ${s.hora}</span><span class="muted">📍 ${s.sede}</span></div>
+    <div class="caltop"><span>${hora} <span class="rbadge">${it.rl}</span></span><span class="muted">📍 ${s.sede}</span></div>
     ${line(a, decided&&w.id===a.id)}
     <div class="mvs"><span>VS</span></div>
     ${line(b, decided&&w.id===b.id)}
-    ${decided?`<div class="mstatus played">${esc(w.nombre)} clasificó a Octavos</div>`:''}</div>`;
+    ${decided?`<div class="mstatus played">${esc(w.nombre)} ${it.rk==="F"?'— ¡CAMPEÓN! 🏆':'clasificó'}</div>`:''}</div>`;
 }
 
 function viewEquipos(){
@@ -722,6 +756,7 @@ async function onAct(ev){
   if(act==="atab"){ state.adminTab=el.dataset.t; render(); return; }
   if(act==="lround"){ state.llavesRound=Number(el.dataset.r); render(); return; }
   if(act==="lmode"){ state.llavesMode=el.dataset.m; render(); return; }
+  if(act==="calround"){ state.calRound=el.dataset.r; render(); return; }
 
   if(act==="sortear"){
     if(!confirm("¿Realizar el sorteo? Queda bloqueado y no se puede repetir sin reiniciarlo.")) return;
