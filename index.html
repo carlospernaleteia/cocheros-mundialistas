@@ -213,7 +213,7 @@ a.link{color:var(--cyan);}
    CONFIG — REEMPLAZA LA ANON KEY (la URL ya es la de carlospernaleteia)
    =================================================================== */
 const SUPABASE_URL  = "https://kaluxolrsbrhzodqwqmz.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthbHV4b2xyc2JyaHpvZHF3cW16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDAwNzQsImV4cCI6MjA4NTcxNjA3NH0.ZE6nLGHjdgz_K-IQbB5UNDTJRED8hUD5ZZrR0PZyI8w";   // <-- Supabase → Settings → API → anon public
+const SUPABASE_ANON = "PEGA_AQUI_TU_ANON_KEY";   // <-- Supabase → Settings → API → anon public
 /* =================================================================== */
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -250,16 +250,18 @@ const OCT=[
   {iso:"2026-07-07T16:00:00-04:00", d:"2026-07-07",o:2,dia:"Mar 7 jul", hora:"4:00 PM", sede:"BC Place · Vancouver"}   // O8 = P96
 ];
 const CUA=[
-  {d:"2026-07-09",o:1,dia:"Jue 9 jul",  hora:"Por confirmar", sede:"Gillette · Boston"},        // Q1 = P97
-  {d:"2026-07-10",o:1,dia:"Vie 10 jul", hora:"Por confirmar", sede:"SoFi · Los Ángeles"},       // Q2 = P98
-  {d:"2026-07-11",o:1,dia:"Sáb 11 jul", hora:"Por confirmar", sede:"Hard Rock · Miami"},        // Q3 = P99
-  {d:"2026-07-11",o:2,dia:"Sáb 11 jul", hora:"Por confirmar", sede:"Arrowhead · Kansas City"}   // Q4 = P100
+  {iso:"2026-07-09T15:00:00-04:00", d:"2026-07-09",o:1,dia:"Jue 9 jul",  hora:"3:00 PM", sede:"Gillette · Boston"},        // Q1 = P97
+  {iso:"2026-07-10T15:00:00-04:00", d:"2026-07-10",o:1,dia:"Vie 10 jul", hora:"3:00 PM", sede:"SoFi · Los Ángeles"},       // Q2 = P98
+  {iso:"2026-07-11T15:00:00-04:00", d:"2026-07-11",o:1,dia:"Sáb 11 jul", hora:"3:00 PM", sede:"Hard Rock · Miami"},        // Q3 = P99
+  {iso:"2026-07-11T19:00:00-04:00", d:"2026-07-11",o:2,dia:"Sáb 11 jul", hora:"7:00 PM", sede:"Arrowhead · Kansas City"}   // Q4 = P100
 ];
 const SEM=[
-  {d:"2026-07-14",o:1,dia:"Mar 14 jul", hora:"Por confirmar", sede:"AT&T · Dallas"},        // S1 = P101
-  {d:"2026-07-15",o:1,dia:"Mié 15 jul", hora:"Por confirmar", sede:"Mercedes-Benz · Atlanta"} // S2 = P102
+  {iso:"2026-07-14T15:00:00-04:00", d:"2026-07-14",o:1,dia:"Mar 14 jul", hora:"3:00 PM", sede:"AT&T · Dallas"},          // S1 = P101
+  {iso:"2026-07-15T15:00:00-04:00", d:"2026-07-15",o:1,dia:"Mié 15 jul", hora:"3:00 PM", sede:"Mercedes-Benz · Atlanta"} // S2 = P102
 ];
-const FIN={d:"2026-07-19",o:1,dia:"Dom 19 jul", hora:"3:00 PM", sede:"MetLife · Nueva Jersey"}; // P104
+// Tercer lugar: lo juegan los PERDEDORES de las semis (no avanzan de fase, por eso va aparte).
+const TER={iso:"2026-07-18T17:00:00-04:00", d:"2026-07-18",o:1,dia:"Sáb 18 jul", hora:"5:00 PM", sede:"Hard Rock · Miami"};    // P103
+const FIN={iso:"2026-07-19T15:00:00-04:00", d:"2026-07-19",o:1,dia:"Dom 19 jul", hora:"3:00 PM", sede:"MetLife · Nueva Jersey"}; // P104
 const state = { equipos:[], parts:[], cfg:{}, view:"pozo", pin:null, adminTab:"sorteo", llavesRound:1, llavesMode:"cuadro", calRound:"all" };
 
 /* ---------- helpers ---------- */
@@ -555,16 +557,23 @@ function viewCalendario(){
   for(let j=0;j<8;j++)  push(occBracket(4*j+1,4*j+2,2),occBracket(4*j+3,4*j+4,2),OCT[j],"8","Octavos");
   for(let c=0;c<4;c++)  push(occBracket(8*c+1,8*c+4,3),occBracket(8*c+5,8*c+8,3),CUA[c],"4","Cuartos");
   for(let s=0;s<2;s++)  push(occBracket(16*s+1,16*s+8,4),occBracket(16*s+9,16*s+16,4),SEM[s],"S","Semifinal");
+  // Tercer lugar: perdedor de cada semi = semifinalista (fase>=4) que NO llegó a la final (fase<5).
+  const perdedorSemi = (a,b) => {
+    const s1=occBracket(a,b,4);                       // quien llegó a semis en esa mitad
+    if(!s1) return null;
+    return s1.fase_nivel>=5 ? null : s1;              // si pasó a la final, no juega el 3er lugar
+  };
+  push(perdedorSemi(1,16), perdedorSemi(17,32), TER, "3", "3er Lugar");
   push(occBracket(1,16,5),occBracket(17,32,5),FIN,"F","FINAL");
   const filt=state.calRound||"all";
   const list=(filt==="all"?all:all.filter(x=>x.rk===filt)).sort((x,y)=>x.sort.localeCompare(y.sort));
-  const chips=[["all","Todos"],["16","16vos"],["8","Octavos"],["4","Cuartos"],["S","Semis"],["F","Final"]];
+  const chips=[["all","Todos"],["16","16vos"],["8","Octavos"],["4","Cuartos"],["S","Semis"],["3","3er Lugar"],["F","Final"]];
   let html=`<div class="card reveal"><div class="eyebrow">Calendario · hasta la Final</div>
     <p class="small muted" style="margin:4px 0 8px">Hora de Venezuela 🇻🇪 · los nombres se llenan al clasificar.</p>
     <div class="rchips">${chips.map(([k,l])=>`<button data-act="calround" data-r="${k}" class="${filt===k?'on':''}">${l}</button>`).join("")}</div>`;
   let dia=null;
   list.forEach(it=>{ if(it.s.dia!==dia){ dia=it.s.dia; html+=`<div class="calhead">${dia}</div>`; } html+=calCard(it); });
-  html+=`<div class="mstatus tbd" style="margin-top:12px">De Octavos en adelante, FIFA confirma la hora exacta según los clasificados.</div></div>`;
+  html+=`<div class="mstatus tbd" style="margin-top:12px">🥉 El 3er Lugar lo juegan los perdedores de las semis (no cuenta para el pozo).</div></div>`;
   return html;
 }
 function calCard(it){
@@ -577,12 +586,17 @@ function calCard(it){
       ${win?'<span class="adv">✓</span>':''}</div>`;
   };
   const hora = (s.hora && s.hora!=="Por confirmar") ? `🕒 ${s.hora}` : `🕒 Hora por confirmar`;
+  const bcls = it.rk==="3" ? ' style="background:#8a98ad"' : '';
+  let estado="";
+  if(decided && it.rk==="F")      estado=`<div class="mstatus played">${esc(w.nombre)} — ¡CAMPEÓN! 🏆</div>`;
+  else if(decided && it.rk==="3") estado=`<div class="mstatus played">🥉 ${esc(w.nombre)} — Tercer lugar</div>`;
+  else if(decided)                estado=`<div class="mstatus played">${esc(w.nombre)} clasificó</div>`;
   return `<div class="match reveal">
-    <div class="caltop"><span>${hora} <span class="rbadge">${it.rl}</span></span><span class="muted">📍 ${s.sede}</span></div>
+    <div class="caltop"><span>${hora} <span class="rbadge"${bcls}>${it.rl}</span></span><span class="muted">📍 ${s.sede}</span></div>
     ${line(a, decided&&w.id===a.id)}
     <div class="mvs"><span>VS</span></div>
     ${line(b, decided&&w.id===b.id)}
-    ${decided?`<div class="mstatus played">${esc(w.nombre)} ${it.rk==="F"?'— ¡CAMPEÓN! 🏆':'clasificó'}</div>`:''}</div>`;
+    ${estado}</div>`;
 }
 
 function viewEquipos(){
