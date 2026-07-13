@@ -557,11 +557,18 @@ function viewCalendario(){
   for(let j=0;j<8;j++)  push(occBracket(4*j+1,4*j+2,2),occBracket(4*j+3,4*j+4,2),OCT[j],"8","Octavos");
   for(let c=0;c<4;c++)  push(occBracket(8*c+1,8*c+4,3),occBracket(8*c+5,8*c+8,3),CUA[c],"4","Cuartos");
   for(let s=0;s<2;s++)  push(occBracket(16*s+1,16*s+8,4),occBracket(16*s+9,16*s+16,4),SEM[s],"S","Semifinal");
-  // Tercer lugar: perdedor de cada semi = semifinalista (fase>=4) que NO llegó a la final (fase<5).
+  // Tercer lugar: solo aparece un equipo cuando su semi YA SE JUGÓ.
+  // Ojo: un semifinalista que aún no juega y un perdedor de semi tienen ambos fase 4.
+  // La única señal de que la semi se decidió es que ALGUIEN de esa mitad llegó a la Final (fase >= 5).
   const perdedorSemi = (a,b) => {
-    const s1=occBracket(a,b,4);                       // quien llegó a semis en esa mitad
-    if(!s1) return null;
-    return s1.fase_nivel>=5 ? null : s1;              // si pasó a la final, no juega el 3er lugar
+    const finalista = occBracket(a,b,5);   // ¿alguien de esta mitad ya pasó a la Final?
+    if(!finalista) return null;            // semi aún no jugada → "Por definir"
+    // el perdedor es el otro semifinalista de esa mitad (fase 4, distinto del finalista)
+    for(let p=a;p<=b;p++){
+      const t=teamAtPos(p);
+      if(t && t.fase_nivel===4 && t.id!==finalista.id) return t;
+    }
+    return null;
   };
   push(perdedorSemi(1,16), perdedorSemi(17,32), TER, "3", "3er Lugar");
   push(occBracket(1,16,5),occBracket(17,32,5),FIN,"F","FINAL");
